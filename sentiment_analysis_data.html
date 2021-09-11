@@ -1,0 +1,1655 @@
+{% extends 'include/base.html' %}
+
+{% block body_content %}
+<!-- Header Section-->
+<style type="text/css">
+	.select.form-control{
+		width: 200px;
+	}
+	.graph-total-show h2 {
+    font-size: 80px;
+    border: none;
+    margin-bottom: 0;
+}
+.graph-total-show {
+    padding: 10px;
+    min-height: 100px;
+    text-align: center;
+    background-color: lightblue;
+}
+.graph-total-show span {
+    color: #000;
+    font-size: 18px;
+}
+.hidden{
+	display:none
+}
+</style>
+<section class="dashboard-header reviews">
+	<div class="container">
+		<div class=" reviews">
+			<div class="add_category">
+				<h4 class="add_name">Sentiment Analysis Data
+					
+				<a href="javascript:void(0)"  style="font-size:12px" onclick="goBack()"><i class="fas fa-arrow-circle-left fa-2x"></i></a>
+			</h4>
+			</div>
+		</div>
+		<div class="row mt-40">
+			<div class="col-md-12">
+					<div class="add_category">
+				<h5 class="add_name">Status</h5>
+			</div>
+				<div class="chart-box">
+					<div class="twitterdata">
+						<h3><span><i class="fas fa-thumbs-down"></i></span> <div class="tweetsb">User Location
+		</div>
+		</h3>
+					</div>
+					<div id="tweets">
+						<!-- {% if all_data.df.user_location.value_counts|length  > 10 and all_data.df.user_location.value_counts|length  < 20 %} 
+						<div id="userlocation" style="height: 400px; width:100%;"></div>
+						{% elif all_data.df.user_location.value_counts|length  > 20 and all_data.df.user_location.value_counts|length  < 50 %}
+						
+						<div id="userlocation" style="height: 600px; width:100%;"></div>
+						{% elif all_data.df.user_location.value_counts|length  > 50 %}	
+						<div id="userlocation" style="height: 800px; width:100%;"></div>
+						{% else %}
+						<div id="userlocation" style="height: 400px; width:100%;"></div>
+						{% endif %} -->
+						<div id="userlocation" style="height: 400px; width:100%; overflow:scroll;"></div>
+					</div>
+				</div>
+			</div>
+			
+			<div class="col-md-6">
+				<div class="chart-box">
+					<div class="twitterdata">
+						<h3><span><i class="fas fa-thumbs-down"></i></span> <div class="tweetsb">OverAll Sentiment
+		</div>
+		</h3>
+					</div>
+					<div id="tweets">
+						<canvas id="overall_sentiment"></canvas>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="chart-box">
+					<div class="twitterdata">
+						<h3><span><i class="fas fa-thumbs-down"></i></span> <div class="tweetsb">Retweet Info 
+		</div>
+		</h3>
+					</div>
+					<div id="tweets">
+						<canvas id="retweet_info"></canvas>
+					</div>
+				</div>
+			</div>
+						<div class="col-md-12">
+				<div class="chart-box">
+					<div class="twitterdata">
+						<h3><span><i class="fas fa-thumbs-down"></i></span> <div class="tweetsb">Categories
+		</div>
+		</h3>
+					</div>
+					<div id="tweets">
+						<div id="categories-graph" style="height: 300px; width: 100%;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+					<div class="add_category">
+				<h5 class="add_name">Accounts</h5>
+			</div>
+		</div>
+			<div class="col-md-6">
+				<div class="chart-box">
+					<div class="twitterdata">
+						<h3><span><i class="fas fa-thumbs-down"></i></span> <div class="tweetsb">Verified  & Unverified
+		</div>
+		</h3>
+					</div>
+					<div id="tweets">
+						<canvas id="verified_unverified"></canvas>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="chart-box">
+					<div class="twitterdata">
+						<h3><span><i class="fas fa-thumbs-down"></i></span> <div class="tweetsb">Source
+		</div>
+		</h3>
+					</div>
+					<div id="tweets">
+						<canvas id="source_graph"></canvas>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-12">
+				<div class="chart-box">
+					<div class="twitterdata">
+						<h3><span><i class="fas fa-share"></i></span>
+						 <div class="tweetsb">Top 5 Followers Account
+		                 </div>
+	                 	</h3>
+					</div>
+					<div id="news">
+						<div class="create-box">
+							<h2 class="task">Followers Account <select class="form-control select_options2" style="width: 200px;">
+				<option value="all_selected_Followers" selected >Select One</option>
+		     	<option value="Positive_Followers">Positive</option>
+	 			<option value="Negative_Followers">Negative</option>
+				<option value="Neutral_Followers">Neutral</option>
+	        	</select>
+	        	</h2>
+							<div class="task-table reviews table-responsive">
+								<table class="table table-striped" id="example1">
+									<thead>
+										<tr>
+											<th>Time</th>
+											<th>Name</th>
+											<th>Account Name</th>
+											<th>Followers</th>
+											<th>Tweet Id</th>
+											<th>Tweet Text</th>
+											<th>Tweet Sentiment</th>
+											<th>Category</th>
+			
+										</tr>
+									</thead>
+									<tbody class="followers all_selected_Followers">
+										{% for item in all_data.top_followers %}
+										<tr>
+											<td>{{item.created_at}}</td>
+											<td>{{item.user_name}}</td>
+											<td>{{item.Screen_name}}</td>
+											<td>{{item.followers}}</td>
+											<td>{{item.id}}</td>
+											<td>{{item.text}}</td>
+											<td>{{item.sentiment}}</td>
+											<td>{{item.category}}</td>
+										</tr>
+										{% endfor %}
+									</tbody>
+
+									<tbody class="followers Positive_Followers hidden">
+										{% for item in all_data.Positive_data_followers %}
+										<tr>
+											<td>{{item.created_at}}</td>
+											<td>{{item.user_name}}</td>
+											<td>{{item.Screen_name}}</td>
+											<td>{{item.followers}}</td>
+											<td>{{item.id}}</td>
+											<td>{{item.text}}</td>
+											<td>{{item.sentiment}}</td>
+											<td>{{item.category}}</td>
+										</tr>
+										{% endfor %}
+									</tbody>
+
+									<tbody class="followers Negative_Followers hidden">
+										{% for item in all_data.Negative_data_followers %}
+										<tr>
+											<td>{{item.created_at}}</td>
+											<td>{{item.user_name}}</td>
+											<td>{{item.Screen_name}}</td>
+											<td>{{item.followers}}</td>
+											<td>{{item.id}}</td>
+											<td>{{item.text}}</td>
+											<td>{{item.sentiment}}</td>
+											<td>{{item.category}}</td>
+										</tr>
+										{% endfor %}
+									</tbody>
+
+									<tbody class="followers Neutral_Followers hidden">
+										{% for item in all_data.Neutral_data_followers %}
+										<tr>
+											<td>{{item.created_at}}</td>
+											<td>{{item.user_name}}</td>
+											<td>{{item.Screen_name}}</td>
+											<td>{{item.followers}}</td>
+											<td>{{item.id}}</td>
+											<td>{{item.text}}</td>
+											<td>{{item.sentiment}}</td>
+											<td>{{item.category}}</td>
+										</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-12">
+				<div class="chart-box">
+					<div class="twitterdata">
+						<h3><span><i class="fas fa-share"></i></span>
+						 <div class="tweetsb">Top 5 Retweet Account
+		                 </div>
+	                 	</h3>
+					</div>
+					<div id="news">
+						<div class="create-box">
+							<h2 class="task">Retweet Account <select class="form-control select_options" style="width: 200px;">
+				<option value="all_selected_Retweet" selected >Select One</option>
+		     	<option value="Positive_Retweet">Positive</option>
+	 			<option value="Negative_Retweet">Negative</option>
+				<option value="Neutral_Retweet">Neutral</option>
+	        	</select>
+	        	</h2>
+							<div class="task-table reviews table-responsive">
+								<table class="table table-striped" id="">
+									<thead>
+										<tr>
+											<th>Time</th>
+											<th>Name</th>
+											<th>Account Name</th>
+											<th>Retweeted</th>
+											<th>Tweet Id</th>
+											<th>Tweet Text</th>
+											<th>Tweet Sentiment</th>
+											<th>Category</th>
+			
+										</tr>
+									</thead>
+									<tbody class="Retweet all_selected_Retweet">
+										{% for item in all_data.top_reply %}
+										<tr>
+											<td>{{item.created_at}}</td>
+											<td>{{item.user_name}}</td>
+											<td>{{item.Screen_name}}</td>
+											<td>{{item.reply_count}}</td>
+											<td>{{item.id}}</td>
+											<td>{{item.text}}</td>
+											<td>{{item.sentiment}}</td>
+											<td>{{item.category}}</td>
+										</tr>
+										{% endfor %}
+									</tbody>
+
+									<tbody class="Retweet Positive_Retweet hidden">
+										{% for item in all_data.Positive_data_reply %}
+										<tr>
+											<td>{{item.created_at}}</td>
+											<td>{{item.user_name}}</td>
+											<td>{{item.Screen_name}}</td>
+											<td>{{item.reply_count}}</td>
+											<td>{{item.id}}</td>
+											<td>{{item.text}}</td>
+											<td>{{item.sentiment}}</td>
+											<td>{{item.category}}</td>
+										</tr>
+										{% endfor %}
+									</tbody>
+
+									<tbody class="Retweet Negative_Retweet hidden">
+										{% for item in all_data.Negative_data_reply %}
+										<tr>
+											<td>{{item.created_at}}</td>
+											<td>{{item.user_name}}</td>
+											<td>{{item.Screen_name}}</td>
+											<td>{{item.reply_count}}</td>
+											<td>{{item.id}}</td>
+											<td>{{item.text}}</td>
+											<td>{{item.sentiment}}</td>
+											<td>{{item.category}}</td>
+										</tr>
+										{% endfor %}
+									</tbody>
+
+									<tbody class="Retweet Neutral_Retweet hidden">
+										{% for item in all_data.Neutral_data_reply %}
+										<tr>
+											<td>{{item.created_at}}</td>
+											<td>{{item.user_name}}</td>
+											<td>{{item.Screen_name}}</td>
+											<td>{{item.reply_count}}</td>
+											<td>{{item.id}}</td>
+											<td>{{item.text}}</td>
+											<td>{{item.sentiment}}</td>
+											<td>{{item.category}}</td>
+										</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+				<div class="col-md-12">
+				<div class="chart-box">
+					<div class="twitterdata">
+						<h3><span><i class="fas fa-share"></i></span> <div class="tweetsb">Top 5 Favourite Account
+		
+		</div>
+		</h3>
+					</div>
+						<div id="news">
+						<div class="create-box">
+							<h2 class="task">Favourite Account <select class="form-control select_options1" style="width: 200px;">
+				<option value="all_selected_Favourite" selected >Select One</option>
+		     	<option value="Positive_Favourite">Positive</option>
+	 			<option value="Negative_Favourite">Negative</option>
+				<option value="Neutral_Favourite">Neutral</option>
+	        	</select>
+	        	</h2>
+							<div class="task-table reviews table-responsive">
+								<table class="table table-striped" id="">
+									<thead>
+										<tr>
+											<th>Time</th>
+											<th>Name</th>
+											<th>Account Name</th>
+											<th>Favourite</th>
+											<th>Tweet Id</th>
+											<th>Tweet Text</th>
+											<th>Tweet Sentiment</th>
+											<th>Category</th>
+			
+										</tr>
+									</thead>
+									<tbody class="Favourite all_selected_Favourite">
+										{% for item in all_data.top_favorite %}
+										<tr>
+											<td>{{item.created_at}}</td>
+											<td>{{item.user_name}}</td>
+											<td>{{item.Screen_name}}</td>
+											<td>{{item.favorite_count}}</td>
+											<td>{{item.id}}</td>
+											<td>{{item.text}}</td>
+											<td>{{item.sentiment}}</td>
+											<td>{{item.category}}</td>
+										</tr>
+										{% endfor %}
+									</tbody>
+
+									<tbody class="Favourite Positive_Favourite hidden">
+										{% for item in all_data.Positive_data_favorite %}
+										<tr>
+											<td>{{item.created_at}}</td>
+											<td>{{item.user_name}}</td>
+											<td>{{item.Screen_name}}</td>
+											<td>{{item.favorite_count}}</td>
+											<td>{{item.id}}</td>
+											<td>{{item.text}}</td>
+											<td>{{item.sentiment}}</td>
+											<td>{{item.category}}</td>
+										</tr>
+										{% endfor %}
+									</tbody>
+
+									<tbody class="Favourite Negative_Favourite hidden">
+										{% for item in all_data.Negative_data_favorite %}
+										<tr>
+											<td>{{item.created_at}}</td>
+											<td>{{item.user_name}}</td>
+											<td>{{item.Screen_name}}</td>
+											<td>{{item.favorite_count}}</td>
+											<td>{{item.id}}</td>
+											<td>{{item.text}}</td>
+											<td>{{item.sentiment}}</td>
+											<td>{{item.category}}</td>
+										</tr>
+										{% endfor %}
+									</tbody>
+
+									<tbody class="Favourite Neutral_Favourite hidden">
+										{% for item in all_data.Neutral_data_favorite %}
+										<tr>
+											<td>{{item.created_at}}</td>
+											<td>{{item.user_name}}</td>
+											<td>{{item.Screen_name}}</td>
+											<td>{{item.favorite_count}}</td>
+											<td>{{item.id}}</td>
+											<td>{{item.text}}</td>
+											<td>{{item.sentiment}}</td>
+											<td>{{item.category}}</td>
+										</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+			
+		</div>
+		<div class="row">
+				<div class="col-md-12">
+					<div class="add_category">
+				<h5 class="add_name">Tweets</h5>
+			</div>
+		</div>
+			<div class="col-md-6">
+				<div class="chart-box">
+					<div class="twitterdata">
+						<h3><span><i class="fas fa-thumbs-down"></i></span> <div class="tweetsb">Retweeted
+		</div>
+		</h3>
+					</div>
+					<div id="tweets">
+    <div id="retweeted-graph"></div>
+
+					</div>
+
+					<div class="graph-total-show">
+						<span>Total Retweeted</span>
+						<h2>{{all_data.df.reply_count.sum}}</h2>
+						
+					</div>
+				</div>
+			</div>
+						<div class="col-md-6">
+				<div class="chart-box">
+					<div class="twitterdata">
+						<h3><span><i class="fas fa-thumbs-down"></i></span> <div class="tweetsb">Favourited
+		</div>
+		</h3>
+					</div>
+					<div id="tweets">
+    <div id="favourite-graph"></div>
+					</div>
+
+					<div class="graph-total-show">
+						<span>Total Favourited</span>
+						<h2>{{all_data.df.favorite_count.sum}}</h2>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+				<div class="col-md-12">
+					<div class="add_category">
+				<h5 class="add_name">Time Series</h5>
+			</div>
+		</div>
+			<div class="col-md-6">
+				<div class="chart-box">
+					<div class="twitterdata">
+						<h3><span><i class="fas fa-thumbs-down"></i></span> <div class="tweetsb">By Hours
+		</div>
+		</h3>
+					</div>
+					<div id="tweets">
+						<div id="hoursgraph"></div>
+    <!-- <canvas id="hoursgraph"></canvas> -->
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-6">
+				<div class="chart-box">
+					<div class="twitterdata">
+						<h3><span><i class="fas fa-thumbs-down"></i></span> <div class="tweetsb">By Months
+		</div>
+		</h3>
+					</div>
+					<div id="tweets">
+						<div id="monthgraph"></div>
+    <!-- <canvas id="monthgraph"></canvas> -->
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-12">
+				<div class="chart-box">
+					<div class="twitterdata">
+						<h3><span><i class="fas fa-thumbs-down"></i></span> <div class="tweetsb">By Days
+		</div>
+		</h3>
+					</div>
+					<div id="tweets">
+						<div id="daygraph"></div>
+    <!-- <canvas id="daygraph"></canvas> -->
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+				<div class="col-md-12">
+					<div class="add_category">
+				<h5 class="add_name">Most Frequency</h5>
+			</div>
+		</div>
+			<div class="col-md-12">
+				<div class="chart-box">
+					<div class="twitterdata">
+						<h3><span><i class="fas fa-thumbs-down"></i></span> <div class="tweetsb">World Cloud
+		</div>
+		</h3>
+					</div>
+					<div id="tweets">
+						<img src="/static/{{all_data.wordcloud}}" style="width:80%; margin-left:9%;">
+					</div>
+				</div>
+			</div>
+
+				<div class="col-md-12">
+				<div class="chart-box">
+					<div class="twitterdata">
+						<h3><span><i class="fas fa-share"></i></span> <div class="tweetsb">ALL Tweets Account
+		</div>
+		</h3>
+					</div>
+					<div id="news">
+						<div class="create-box">
+							<h2 class="task">Tweets Account
+		</h2>
+							<div class="task-table reviews table-responsive">
+								<table class="table table-striped" id="example">
+									<thead>
+										<tr>
+											<th>Time</th>
+											<th>Name</th>
+											<th>Account Name</th>
+											<th>Followers</th>
+											<th>Location</th>
+                      <th>Tweet Id</th>
+											<th>Favourited</th>
+											<th>Retweeted</th>
+											<th>Source</th>
+                      <th>Tweet Text</th>
+											<th>Tweet Sentiment</th>
+											<th>Category</th>
+											<th>Favorite count</th>
+											<th>Retweet count</th>
+											<th>Reply count</th>
+											<th>Reply To</th>
+											<th>By Hours</th>
+											<th>By Day</th>
+											<th>By Months</th>
+										</tr>
+									</thead>
+									<tbody>
+                    {% for data in all_data.all_data%}
+										<tr>
+											<td>{{data.created_at}}</td>
+                      <td>{{data.user_name}}</td>
+                      <td>{{data.Screen_name}}</td>
+                      <td>{{data.followers}}</td>
+                      <td>{{data.user_location}}</td>
+                      <td>{{data.id}}</td>
+                      <td>{{data.favorited}}</td>
+                      <td>{{data.retweeted}}</td>
+                      <td>{{data.source}}</td>
+                      <td>{{data.text}}</td>
+                      <td>{{data.sentiment}}</td>
+                      <td>{{data.category}}</td>
+					  <td>{{data.favorite_count}}</td>
+					  <td>{{data.retweet_count}}</td>
+					  <td>{{data.reply_count}}</td>
+					  <td>{{data.replied_to}}</td>
+					  <td>{{data.by_hours}}</td>
+					  <td>{{data.by_day}}</td>
+					  <td>{{data.by_month}}</td>
+										
+										</tr>
+                    {% endfor %}
+
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</section>
+
+
+
+{% endblock %}
+{% block script %}
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.2.2/Chart.min.js"></script>
+	<script type="text/javascript" src="https://canvasjs.com/assets/script/jquery.canvasjs.min.js">
+	
+		
+	</script>
+	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+	<script src="https://code.highcharts.com/highcharts.js"></script>
+
+	<script >
+	var index_label = new Array();
+	var data_show = new Array();
+
+	'{% for index , value in all_data.df.by_hours.value_counts.items %}'
+	index_label.push('{{index}}')
+	data_show.push('{{value}}')
+	'{% endfor %}'
+
+	
+
+	  var options = {
+          series: [{
+          name: 'Tweet Count',
+          data: data_show
+        }],
+          
+        chart: {
+          height: 350,
+          type: 'bar',
+		  toolbar:{show:false},
+        },
+        plotOptions: {
+          bar: {
+            columnWidth: '50%',
+            //endingShape: 'rounded'  
+			vertical: true,
+          }
+        },
+        dataLabels: {
+          enabled: false
+        },
+        
+        
+        grid: {
+          row: {
+            colors: ['#fff', '#f2f2f2']
+          }
+        },
+        xaxis: {
+          type: '',
+          labels: {
+
+          },
+          categories: index_label,
+          tickPlacement: 'on'
+        },
+        yaxis: {
+          title: {
+            text: 'Tweet Count',
+          },
+          
+        },
+fill: {
+            colors:["#FFFFFF80"],
+            type: 'gradient', // gradient
+            gradient: {
+                type: 'vertical', // The gradient in the horizontal direction
+                gradientToColors: ['#61A4E4'], // The color at the end of the gradient
+                opacityFrom: 1, // transparency
+                opacityTo: 1,
+                stops:[0,120]
+            }
+        },      
+        };
+
+        var chart = new ApexCharts(document.querySelector("#hoursgraph"), options);
+        chart.render();
+
+	</script>
+
+<script >
+	var index_label = new Array();
+	var data_show = new Array();
+
+	'{% for index , value in all_data.df.by_month.value_counts.items %}'
+	'{% if index == 1 %}'
+	index_label.push('Jan')
+	'{% elif index == 2 %}'
+	index_label.push('Feb')
+	'{% elif index == 3 %}'
+	index_label.push('Mar')
+	'{% elif index == 4 %}'
+	index_label.push('Apr')
+	'{% elif index == 5 %}'
+	index_label.push('May')
+	'{% elif index == 6 %}'
+	index_label.push('Jun')
+	'{% elif index == 7 %}'
+	index_label.push('Jul')
+	'{% elif index == 8 %}'
+	index_label.push('Aug')
+	'{% elif index == 9 %}'
+	index_label.push('Sep')
+	'{% elif index == 10 %}'
+	index_label.push('Oct')
+	'{% elif index == 11 %}'
+	index_label.push('Nov')
+	'{% else %}'
+	index_label.push('Dec')
+	'{% endif %}'
+	data_show.push('{{value}}')
+	'{% endfor %}'
+
+	
+
+	  var options = {
+          series: [{
+          name: 'Tweet Count',
+          data: data_show
+        }],
+          
+        chart: {
+          height: 350,
+          type: 'bar',
+		  toolbar:{show:false},
+        },
+        plotOptions: {
+          bar: {
+            columnWidth: '50%',
+            //endingShape: 'rounded'  
+			vertical: true,
+          }
+        },
+        dataLabels: {
+          enabled: false
+        },
+        
+        
+        grid: {
+          row: {
+            colors: ['#fff', '#f2f2f2']
+          }
+        },
+        xaxis: {
+          type: '',
+          labels: {
+
+          },
+          categories: index_label,
+          tickPlacement: 'on'
+        },
+        yaxis: {
+          title: {
+            text: 'Tweet Count',
+          },
+          
+        },
+fill: {
+            colors:["#FFFFFF80"],
+            type: 'gradient', // gradient
+            gradient: {
+                type: 'vertical', // The gradient in the horizontal direction
+                gradientToColors: ['#61A4E4'], // The color at the end of the gradient
+                opacityFrom: 1, // transparency
+                opacityTo: 1,
+                stops:[0,120]
+            }
+        },      
+        };
+
+        var chart = new ApexCharts(document.querySelector("#monthgraph"), options);
+        chart.render();
+
+	</script>
+
+<script >
+	var index_label = new Array();
+	var data_show = new Array();
+
+	'{% for index , value in all_data.df.by_day.value_counts.items %}'
+	index_label.push('{{index}}')
+	data_show.push('{{value}}')
+	'{% endfor %}'
+
+	
+
+	  var options = {
+          series: [{
+          name: 'Tweet Count',
+          data: data_show
+        }],
+          
+        chart: {
+          height: 350,
+          type: 'bar',
+		  toolbar:{show:false},
+        },
+        plotOptions: {
+          bar: {
+            columnWidth: '50%',
+            //endingShape: 'rounded'  
+			vertical: true,
+          }
+        },
+        dataLabels: {
+          enabled: false
+        },
+        
+        
+        grid: {
+          row: {
+            colors: ['#fff', '#f2f2f2']
+          }
+        },
+        xaxis: {
+          type: '',
+          labels: {
+
+          },
+          categories: index_label,
+          tickPlacement: 'on'
+        },
+        yaxis: {
+          title: {
+            text: 'Tweet Count',
+          },
+          
+        },
+fill: {
+            colors:["#FFFFFF80"],
+            type: 'gradient', // gradient
+            gradient: {
+                type: 'vertical', // The gradient in the horizontal direction
+                gradientToColors: ['#61A4E4'], // The color at the end of the gradient
+                opacityFrom: 1, // transparency
+                opacityTo: 1,
+                stops:[0,120]
+            }
+        },      
+        };
+
+        var chart = new ApexCharts(document.querySelector("#daygraph"), options);
+        chart.render();
+
+	</script>
+
+	
+<script type="text/javascript">
+	var ctx = document.getElementById("retweet_info").getContext('2d');
+	var index_label = new Array();
+	var data_show = new Array();
+
+	'{% for index , value in all_data.df.retweet.value_counts.items %}'
+	'{% if index == "Not a Retweet" %}'
+	index_label.push('Orignal')
+	'{% else %}'
+	index_label.push('{{index}}')
+	'{% endif %}'
+	data_show.push('{{value}}')
+	'{% endfor %}'
+
+var myChart = new Chart(ctx, {
+  type: 'pie',
+  data: {
+    labels: index_label,
+    datasets: [{
+      backgroundColor: [
+        "#2ecc71",
+        "#3498db",
+        "#95a5a6",
+        "#9b59b6",
+        "#f1c40f",
+        "#e74c3c",
+        "#34495e"
+      ],
+      data: data_show
+    }]
+  }
+});
+</script>
+<script type="text/javascript">
+	var ctx = document.getElementById("overall_sentiment").getContext('2d');
+	var index_label = new Array();
+	var data_show = new Array();
+
+	'{% for index , value in all_data.df.sentiment.value_counts.items %}'
+	'{% if index == "Positive" %}'
+	index_label.push('{{index}}')
+	data_show.push('{{value}}')
+	'{% endif %}'
+	'{% endfor %}'
+
+	'{% for index , value in all_data.df.sentiment.value_counts.items %}'
+	'{% if index == "Negative" %}'
+	index_label.push('{{index}}')
+	data_show.push('{{value}}')
+	'{% endif %}'
+	'{% endfor %}'
+
+	'{% for index , value in all_data.df.sentiment.value_counts.items %}'
+	'{% if index == "Neutral" %}'
+	index_label.push('{{index}}')
+	data_show.push('{{value}}')
+	'{% endif %}'
+	'{% endfor %}'
+var myChart = new Chart(ctx, {
+  type: 'pie',
+  data: {
+    labels: index_label,
+    datasets: [{
+      backgroundColor: [
+		"#2ecc71",
+        "#F36953",
+		"#8e9490"
+      ],
+      data: data_show
+    }]
+  }
+});
+</script>
+<script type="text/javascript">
+	var ctx = document.getElementById("verified_unverified").getContext('2d');
+	var index_label = new Array();
+	var data_show = new Array();
+
+	'{% for index , value in all_data.df.verified.value_counts.items %}'
+	index_label.push('{{index}}')
+	data_show.push('{{value}}')
+	'{% endfor %}'
+
+var myChart = new Chart(ctx, {
+  type: 'pie',
+  data: {
+    labels: index_label,
+    datasets: [{
+      backgroundColor: [
+        "#3498db",
+        "#000000"
+      ],
+      data: data_show
+    }]
+  }
+});
+</script>
+<script type="text/javascript">
+	var ctx = document.getElementById("source_graph").getContext('2d');
+	var index_label = new Array();
+	var data_show = new Array();
+	var other_collect = new Array();
+
+	'{% for index , value in all_data.df.source.value_counts.items %}'
+	'{% if index == "Twitter for iPhone" %}'
+	index_label.push('iPhone')
+	data_show.push('{{value}}')
+	'{% elif index == "Twitter for Android"  %}'
+	index_label.push('Android')
+	data_show.push('{{value}}')
+	'{% elif index == "Twitter Web App"  %}'
+	index_label.push('Webapp')
+	data_show.push('{{value}}')
+	'{% else %}'
+	other_collect.push('{{index}}')
+	'{% endif %}'
+	'{% endfor %}'
+
+	if (Array.isArray(other_collect) && other_collect.length) {
+		index_label.push('other')
+		data_show.push(other_collect.length)
+	}
+	
+var myChart = new Chart(ctx, {
+  type: 'pie',
+  data: {
+    labels: index_label,
+    datasets: [{
+      backgroundColor: [
+        "#2ecc71",
+        "#000000",
+		"#3498db"
+      ],
+      data: data_show
+    }]
+  }
+});
+</script>
+<script>
+            $(document).ready(function() {
+    $('#example2').DataTable();
+} );
+        </script>
+        <script>
+            $(document).ready(function() {
+    $('#example3').DataTable();
+} );
+        </script>
+                <script>
+            $(document).ready(function() {
+    $('#example4').DataTable();
+} );
+        </script>
+
+
+
+	<!-- <script>
+var canvas = document.getElementById("hoursgraph");
+var ctx = canvas.getContext('2d');
+var index_label = new Array();
+var data_show = new Array();
+
+	'{% for index , value in all_data.df.by_hours.value_counts.items %}'
+	index_label.push('{{index}}')
+	data_show.push('{{value}}')
+	'{% endfor %}'
+
+// Global Options:
+Chart.defaults.global.defaultFontColor = 'black';
+Chart.defaults.global.defaultFontSize = 16;
+
+var data = {
+  labels: index_label,
+  datasets: [{
+      label: "Tweet Count",
+      fill: false,
+      lineTension: 0.1,
+      backgroundColor: "rgba(225,0,0,0.4)",
+      borderColor: "red", // The main line color
+      borderCapStyle: 'square',
+      borderDash: [], // try [5, 15] for instance
+      borderDashOffset: 0.0,
+      borderJoinStyle: 'miter',
+      pointBorderColor: "black",
+      pointBackgroundColor: "white",
+      pointBorderWidth: 1,
+      pointHoverRadius: 8,
+      pointHoverBackgroundColor: "yellow",
+      pointHoverBorderColor: "brown",
+      pointHoverBorderWidth: 2,
+      pointRadius: 4,
+      pointHitRadius: 10,
+      // notice the gap in the data and the spanGaps: true
+      data: data_show,
+      spanGaps: true,
+    }
+
+  ]
+};
+
+// Notice the scaleLabel at the same level as Ticks
+var options = {
+  scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero:true
+                },
+                scaleLabel: {
+                     display: true,
+                     fontSize: 20 
+                  }
+            }]            
+        }  
+};
+
+// Chart declaration:
+var myBarChart = new Chart(ctx, {
+  type: 'line',
+  data: data,
+  options: options
+});
+	</script>
+
+
+	<script>
+var canvas = document.getElementById("daygraph");
+var ctx = canvas.getContext('2d');
+var index_label = new Array();
+var data_show = new Array();
+
+	'{% for index , value in all_data.df.by_day.value_counts.items %}'
+	index_label.push('{{index}}')
+	data_show.push('{{value}}')
+	'{% endfor %}'
+
+
+// Global Options:
+Chart.defaults.global.defaultFontColor = 'black';
+Chart.defaults.global.defaultFontSize = 16;
+
+
+
+var data = {
+  labels: index_label,
+  datasets: [{
+      label: "Tweets Count",
+      fill: false,
+      lineTension: 0.1,
+      backgroundColor: "rgba(225,0,0,0.4)",
+      borderColor: "red", // The main line color
+      borderCapStyle: 'square',
+      borderDash: [], // try [5, 15] for instance
+      borderDashOffset: 0.0,
+      borderJoinStyle: 'miter',
+      pointBorderColor: "black",
+      pointBackgroundColor: "white",
+      pointBorderWidth: 1,
+      pointHoverRadius: 8,
+      pointHoverBackgroundColor: "yellow",
+      pointHoverBorderColor: "brown",
+      pointHoverBorderWidth: 2,
+      pointRadius: 4,
+      pointHitRadius: 10,
+      // notice the gap in the data and the spanGaps: true
+      data: data_show,
+      spanGaps: true,
+    }
+
+  ]
+};
+
+// Notice the scaleLabel at the same level as Ticks
+var options = {
+  scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero:true
+                },
+                scaleLabel: {
+                     display: true,
+                     fontSize: 20 
+                  }
+            }]            
+        }  
+};
+
+// Chart declaration:
+var myBarChart = new Chart(ctx, {
+  type: 'line',
+  data: data,
+  options: options
+});
+	</script>
+
+
+	<script>
+var canvas = document.getElementById("monthgraph");
+var ctx = canvas.getContext('2d');
+var index_label = new Array();
+var data_show = new Array();
+
+	'{% for index , value in all_data.df.by_month.value_counts.items %}'
+	index_label.push('{{index}}')
+	data_show.push('{{value}}')
+	'{% endfor %}'
+
+
+// Global Options:
+Chart.defaults.global.defaultFontColor = 'black';
+Chart.defaults.global.defaultFontSize = 16;
+
+var data = {
+  labels: index_label,
+  datasets: [{
+      label: "Tweets Count",
+      fill: false,
+      lineTension: 0.1,
+      backgroundColor: "rgba(225,0,0,0.4)",
+      borderColor: "red", // The main line color
+      borderCapStyle: 'square',
+      borderDash: [], // try [5, 15] for instance
+      borderDashOffset: 0.0,
+      borderJoinStyle: 'miter',
+      pointBorderColor: "black",
+      pointBackgroundColor: "white",
+      pointBorderWidth: 1,
+      pointHoverRadius: 8,
+      pointHoverBackgroundColor: "yellow",
+      pointHoverBorderColor: "brown",
+      pointHoverBorderWidth: 2,
+      pointRadius: 4,
+      pointHitRadius: 10,
+      // notice the gap in the data and the spanGaps: true
+      data: data_show,
+      spanGaps: true,
+    }
+
+  ]
+};
+
+// Notice the scaleLabel at the same level as Ticks
+var options = {
+  scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero:true
+                },
+                scaleLabel: {
+                     display: true,
+                     fontSize: 20 
+                  }
+            }]            
+        }  
+};
+
+// Chart declaration:
+var myBarChart = new Chart(ctx, {
+  type: 'line',
+  data: data,
+  options: options
+});
+	</script> -->
+
+
+
+	<script>
+var canvas = document.getElementById("retweeted-graph");
+var ctx = canvas.getContext('2d');
+
+// Global Options:
+Chart.defaults.global.defaultFontColor = 'black';
+Chart.defaults.global.defaultFontSize = 16;
+
+var data = {
+  labels: ["False", "True"],
+  datasets: [{
+      label: "Stock A",
+      fill: false,
+      lineTension: 0.1,
+      backgroundColor: "rgba(225,0,0,0.4)",
+      borderColor: "red", // The main line color
+      borderCapStyle: 'square',
+      borderDash: [], // try [5, 15] for instance
+      borderDashOffset: 0.0,
+      borderJoinStyle: 'miter',
+      pointBorderColor: "black",
+      pointBackgroundColor: "white",
+      pointBorderWidth: 1,
+      pointHoverRadius: 8,
+      pointHoverBackgroundColor: "yellow",
+      pointHoverBorderColor: "brown",
+      pointHoverBorderWidth: 2,
+      pointRadius: 4,
+      pointHitRadius: 10,
+      // notice the gap in the data and the spanGaps: true
+      data: [2, 3],
+      spanGaps: true,
+    }
+
+  ]
+};
+
+// Notice the scaleLabel at the same level as Ticks
+var options = {
+  scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero:true
+                },
+                scaleLabel: {
+                     display: true,
+                     fontSize: 20 
+                  }
+            }]            
+        }  
+};
+
+// Chart declaration:
+var myBarChart = new Chart(ctx, {
+  type: 'line',
+  data: data,
+  options: options
+});
+	</script>
+
+	<script type="text/javascript">
+var index_label = new Array();
+var data_show = new Array();
+
+	'{% for index , value in all_data.df.retweeted.value_counts.items %}'
+	index_label.push('{{index}}')
+	data_show.push(parseInt('{{value}}'))
+	'{% endfor %}'
+
+		$(function () { 
+  Highcharts.setOptions({
+    colors: ['#67BCE6'],
+    chart: {
+        style: {
+            fontFamily: 'sans-serif',
+            color: '#fff'
+        }
+    }
+});  
+  $('#retweeted-graph').highcharts({
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Retweeted',
+            style: {  
+              color: '#000'
+            }
+        },
+        xAxis: {
+            tickWidth: 0,
+            labels: {
+              style: {
+                  color: '#000',
+                 }
+              },
+            categories: index_label
+        },
+        yAxis: {
+           gridLineWidth: .5,
+		      gridLineDashStyle: 'dash',
+		      gridLineColor: 'black',
+           title: {
+                text: '',
+                style: {
+                  color: '#000'
+                 }
+            },
+            labels: {
+              formatter: function() {
+                        return Highcharts.numberFormat(this.value, 0, '', ',');
+                    },
+              style: {
+                  color: '#000',
+                 }
+              }
+            },
+        legend: {
+            enabled: false,
+        },
+        credits: {
+            enabled: false
+        },
+        plotOptions: {
+		      column: {
+			      borderRadius: 2,
+             pointPadding: 0,
+			      groupPadding: 0.1
+            } 
+		    },
+        series: [{
+            name: 'USER COUNT',
+            data: data_show
+        }]
+    });
+});
+		</script>
+
+
+	<script type="text/javascript">
+var index_label = new Array();
+var data_show = new Array();
+
+	'{% for index , value in all_data.df.favorited.value_counts.items %}'
+	index_label.push('{{index}}')
+	data_show.push(parseInt('{{value}}'))
+	'{% endfor %}'
+
+		$(function () { 
+  Highcharts.setOptions({
+    colors: ['#67BCE6'],
+    chart: {
+        style: {
+            fontFamily: 'sans-serif',
+            color: '#fff'
+        }
+    }
+});  
+  $('#favourite-graph').highcharts({
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Favourited',
+            style: {  
+              color: '#000'
+            }
+        },
+        xAxis: {
+            tickWidth: 0,
+            labels: {
+              style: {
+                  color: '#000',
+                 }
+              },
+            categories: index_label
+        },
+        yAxis: {
+           gridLineWidth: .5,
+		      gridLineDashStyle: 'dash',
+		      gridLineColor: 'black',
+           title: {
+                text: '',
+                style: {
+                  color: '#000'
+                 }
+            },
+            labels: {
+              formatter: function() {
+                        return Highcharts.numberFormat(this.value, 0, '', ',');
+                    },
+              style: {
+                  color: '#000',
+                 }
+              }
+            },
+        legend: {
+            enabled: false,
+        },
+        credits: {
+            enabled: false
+        },
+        plotOptions: {
+		      column: {
+			      borderRadius: 2,
+             pointPadding: 0,
+			      groupPadding: 0.1
+            } 
+		    },
+        series: [{
+            name: 'USER COUNT',
+            data: data_show
+        }]
+    });
+});
+		</script>
+		<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+<script>
+
+var chart = new CanvasJS.Chart("categories-graph", {
+	animationEnabled: true,
+	// title:{
+	// 	text: "Evening Sales in a Restaurant"
+	// },
+	// colors: ['#32CD32','#FFFF00','#FF0000'],
+	toolTip: {
+		shared: true
+	},
+	legend:{
+		cursor: "pointer", 
+		itemclick: toggleDataSeries
+	},
+	data: [
+	{
+		type: "stackedBar",
+		name: "Positive",
+		showInLegend: "true",
+		color: "#2ecc71",
+		dataPoints: [
+		{ y: parseInt('{{all_data.Positive_category.Ad}}'), label:'Ad' },
+		{ y: parseInt('{{all_data.Positive_category.Others}}'), label:'Others' },
+		{ y: parseInt('{{all_data.Positive_category.religon}}'), label:'religon' },
+		{ y: parseInt('{{all_data.Positive_category.Actor}}'), label:'Actor' },
+		]
+	},
+	{
+		type: "stackedBar",
+		name: "Negative", 
+		showInLegend: "true",
+		color: "#F36953 ",
+		dataPoints: [
+		{ y: parseInt('{{all_data.Negative_category.Ad}}'), label:'Ad' },
+		{ y: parseInt('{{all_data.Negative_category.Others}}'), label:'Others' },
+		{ y: parseInt('{{all_data.Negative_category.religon}}'), label:'religon' },
+		{ y: parseInt('{{all_data.Negative_category.Actor}}'), label:'Actor' },
+		]
+	},
+	{
+		type: "stackedBar",
+		name: "Neutral", 
+		showInLegend: "true",
+		color: "#8e9490 ",
+		dataPoints: [
+		{ y: parseInt('{{all_data.Neutral_category.Ad}}'), label:'Ad' },
+		{ y: parseInt('{{all_data.Neutral_category.Others}}'), label:'Others' },
+		{ y: parseInt('{{all_data.Neutral_category.religon}}'), label:'religon' },
+		{ y: parseInt('{{all_data.Neutral_category.Actor}}'), label:'Actor' },
+		]
+	},
+	]
+});
+chart.render();
+
+function toggleDataSeries(e) {
+	if(typeof(e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+		e.dataSeries.visible = false;
+	}
+	else {
+		e.dataSeries.visible = true;
+	}
+	chart.render();
+}
+
+</script>
+
+<script>
+var dps = new Array();
+'{% for item in all_data.user_location reversed  %}'
+'{% if item.index == "Not given" %}'
+
+'{% else %}'
+dps.push({ y: parseInt('{{item.value}}'), label:String('{{item.index}}') })
+'{% endif %}'
+
+
+'{% endfor %}'
+
+if(dps.length >= 0 && dps.length < 15 ){
+	var height = 400
+}
+else if(dps.length >= 15 && dps.length < 30 ){
+	var height = 1000
+}
+else if(dps.length >= 30 && dps.length <= 60 ){
+	var height = 2000
+}
+else{
+	var height = 3000
+}
+var chart = new CanvasJS.Chart("userlocation", {
+	animationEnabled: true,
+	
+	height:height,
+	// width:1000,
+	
+	axisX:{
+		interval: 1,
+		 labelFontSize: 13,
+	},
+	axisY2:{
+		interlacedColor: "rgba(1,77,101,.2)",
+		gridColor: "rgba(1,77,101,.1)",
+		title: "USER LOCATION",
+		labelFontSize: 13,
+		
+	},
+	data: [{
+		type: "bar",
+		name: "companies",
+		axisYType: "secondary",
+		color: "#014D65",
+		// label:['Sweden',"Taiwan","Russia"],
+
+		dataPoints:dps
+	}]
+});
+chart.render();
+
+
+</script>
+
+
+<script type="">
+	// retweet filter script
+	$(document).on("change",".select_options",function(){
+      var get_data = $(this).val();
+
+
+	   $('tbody.Retweet').each(function(){
+         
+		if($(this).hasClass(get_data))
+		{ 
+			 if($(this).hasClass("hidden"))
+			 {
+				$(this).removeClass("hidden");
+			 }
+			
+		}
+		else
+		{
+			if(!$(this).hasClass("hidden"))
+			 {
+				$(this).addClass("hidden");
+			 }
+			
+		}
+
+	   });
+	});
+
+	// favorite filter script
+	$(document).on("change",".select_options1",function(){
+      var get_data = $(this).val();
+
+
+	   $('tbody.Favourite').each(function(){
+         
+		if($(this).hasClass(get_data))
+		{ 
+			 if($(this).hasClass("hidden"))
+			 {
+				$(this).removeClass("hidden");
+			 }
+			
+		}
+		else
+		{
+			if(!$(this).hasClass("hidden"))
+			 {
+				$(this).addClass("hidden");
+			 }
+			
+		}
+
+	   });
+	});
+
+	// followers filter script
+	$(document).on("change",".select_options2",function(){
+      var get_data = $(this).val();
+
+
+	   $('tbody.followers').each(function(){
+         
+		if($(this).hasClass(get_data))
+		{ 
+			 if($(this).hasClass("hidden"))
+			 {
+				$(this).removeClass("hidden");
+			 }
+			
+		}
+		else
+		{
+			if(!$(this).hasClass("hidden"))
+			 {
+				$(this).addClass("hidden");
+			 }
+			
+		}
+
+	   });
+	});
+</script>
+{% endblock %}
